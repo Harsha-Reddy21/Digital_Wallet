@@ -1,6 +1,6 @@
-from fastapi import FastAPI,HTTPException
+from fastapi import FastAPI
 import uvicorn
-from routers import users,transactions, transactions,wallet,transfer
+from routers import users, transactions, wallet, transfer
 from database import get_db, create_tables
 
 
