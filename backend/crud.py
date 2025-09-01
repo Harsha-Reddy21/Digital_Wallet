@@ -34,3 +34,6 @@ async def update_user(db:AsyncSession, user_id:int, user:schemas.UserUpdate):
 
 
 
+
+
+

@@ -1,30 +1,56 @@
 
 
-
-from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
+from pydantic import BaseModel
+
 
 class UserBase(BaseModel):
-    username: str =Field(..., max_length=50)
-    email: str = Field(..., max_length=100)
-    phone_number: Optional[str] = Field(None, max_length=15)    
-    balance: Optional[float] = 0.00
+    username: str
+    email: str
+    phone_number: str
+    balance: float  
 
 class UserCreate(UserBase):
-    password: str = Field(..., min_length=6, max_length=255)
-
+    password: str
 
 class UserUpdate(UserBase):
-    password: Optional[str] = Field(None, min_length=6, max_length=255)
+    password: Optional[str] = None
 
 class UserResponse(UserBase):
-    user_id:int
+    user_id: int
     created_at: datetime
     updated_at: datetime
 
 
 
+class TransactionBase(BaseModel):
+    user_id: int
+    transaction_type: str
+    amount: float
+    description: str
+    reference_transaction_id: int
+    recipient_user_id: int
+    created_at: datetime
+    updated_at: datetime
 
-class Transaction(BaseModel):
-    pass 
+
+class TransactionCreate(TransactionBase):
+    pass
+
+
+class TransactionResponse(TransactionBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+
+class TransferBase(BaseModel):
+    sender_user_id: int
+    recipient_user_id: int
+    amount: float
+    description: str
+
+class TransferCreate(TransferBase):
+    pass
+
