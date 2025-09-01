@@ -4,3 +4,6 @@ uvicorn
 pydantic
 sqlalchemy
 python-dotenv
+asyncpg
+psycopg2
+aiosqlite

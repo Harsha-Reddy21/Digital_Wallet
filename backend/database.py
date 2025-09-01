@@ -1,11 +1,10 @@
 
 from sqlalchemy.ext.asyncio import create_async_engine,async_sessionmaker, AsyncSession
 import os 
+import asyncio
 from sqlalchemy.orm import declarative_base
-from dotenv import load_dotenv
-load_dotenv()
 
-DATABASE_URL=os.getenv('POSTGRES_URL')
+DATABASE_URL='sqlite+aiosqlite:///./digital_wallet.db'
 engine=create_async_engine(
     DATABASE_URL,
 )

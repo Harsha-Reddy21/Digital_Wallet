@@ -4,6 +4,7 @@ from sqlalchemy.sql import func
 import enum
 
 class User(Base):
+    __tablename__='users'
     id = Column(Integer,primary_key=True, index=True)
     username=Column(String(50),nullable=False,unique=True)
     email= Column(String(100),nullable=False, unique=True)
@@ -23,6 +24,7 @@ class TransactionType(enum.Enum):
 
 
 class Transaction(Base):
+    __tablename__='transactions'
     id=Column(Integer,primary_key=True,index=True)
     user_id=Column(Integer,ForeignKey('users.id'))
     transaction_type=Column(String(20),nullable=False)
