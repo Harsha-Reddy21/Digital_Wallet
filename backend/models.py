@@ -10,7 +10,7 @@ class User(Base):
     email= Column(String(100),nullable=False, unique=True)
     password=Column(String(255),nullable=False)
     phone_number=Column(String(15))
-    balance=Column(DECIMAL(10,2),default=0.00)
+    balance=Column(Float,default=0.00)
     created_at=Column(TIMESTAMP,default=func.now())
     updated_at=Column(TIMESTAMP,default=func.now(),onupdate=func.now())
 
@@ -28,7 +28,7 @@ class Transaction(Base):
     id=Column(Integer,primary_key=True,index=True)
     user_id=Column(Integer,ForeignKey('users.id'))
     transaction_type=Column(String(20),nullable=False)
-    amount=Column(DECIMAL(10,2),nullable=False)
+    amount=Column(Float,nullable=False)
     description=Column(Text)
     reference_transaction_id=Column(Integer,ForeignKey('transactions.id'))
     recipient_user_id=Column(Integer,ForeignKey('users.id'))

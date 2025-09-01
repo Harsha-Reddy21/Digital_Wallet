@@ -6,7 +6,7 @@ import schemas
 from database import async_sessionmaker, AsyncSession, get_db
 
 
-router = APIRouter(prefix='/users')
+router = APIRouter(prefix='/users',tags=['Users'])
 
 
 @router.get('/{user_id}')
@@ -29,4 +29,5 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
 @router.post('/')
 async def create_user(user: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
     db_user = await crud.create_user(db=db, user=user)
-    return {"user_id": db_user.id}
+    user_details={'username': db_user.username, 'phone_number': db_user.phone_number}
+    return user_details

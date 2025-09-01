@@ -26,13 +26,9 @@ class UserResponse(UserBase):
 
 class TransactionBase(BaseModel):
     user_id: int
-    transaction_type: str
     amount: float
     description: str
-    reference_transaction_id: int
-    recipient_user_id: int
-    created_at: datetime
-    updated_at: datetime
+    
 
 
 class TransactionCreate(TransactionBase):
@@ -40,6 +36,11 @@ class TransactionCreate(TransactionBase):
 
 
 class TransactionResponse(TransactionBase):
+    reference_transaction_id: int
+    recipient_user_id: int
+    transaction_type: str
+    created_at: datetime
+    updated_at: datetime
     id: int
     created_at: datetime
     updated_at: datetime

@@ -21,15 +21,7 @@ async def create_user(db:AsyncSession, user:schemas.UserCreate):
     await db.refresh(db_user)
     return db_user
 
-async def update_user(db:AsyncSession, user_id:int, user:schemas.UserUpdate):
-    db_user = await get_user(db, user_id)
-    if db_user is None:
-        return None
-    for key, value in user.dict(exclude_unset=True).items():
-        setattr(db_user, key, value)
-    await db.commit()
-    await db.refresh(db_user)
-    return db_user
+
 
 
 
@@ -48,8 +40,10 @@ async def get_transaction(db: AsyncSession, transaction_id: int):
 
 
 
-async def create_transaction(db:AsyncSession, transaction:schemas.TransactionCreate):
-    db_transaction = models.Transaction(**transaction.dict())
+async def create_transaction(db:AsyncSession, transaction:schemas.TransactionCreate,transaction_type=None):
+    data=transaction.dict() 
+    data["transaction_type"] = transaction_type
+    db_transaction = models.Transaction(**data)
     db.add(db_transaction)
     await db.commit()
     await db.refresh(db_transaction)

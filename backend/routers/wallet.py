@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 import crud
 import schemas
 from database import async_sessionmaker, AsyncSession, get_db
-router=APIRouter(prefix='/wallet')
+router=APIRouter(prefix='/wallet',tags=['Wallet'])
 
 
 @router.get('/{user_id}/balance')
@@ -21,8 +21,8 @@ async def get_balance(user_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.post('/{user_id}/add-money')
-async def add_money(user_id: int, transaction: schemas.TransactionCreate, db: AsyncSession = Depends(get_db)):
-    user = await crud.get_user(db=db, user_id=user_id)
+async def add_money(transaction: schemas.TransactionCreate, db: AsyncSession = Depends(get_db)):
+    user = await crud.get_user(db=db, user_id=transaction.user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -31,8 +31,11 @@ async def add_money(user_id: int, transaction: schemas.TransactionCreate, db: As
     await db.commit()
     await db.refresh(user)
 
+    transaction_type = "CREDIT"
+    new_transaction=await crud.create_transaction(db=db, transaction=transaction, transaction_type=transaction_type)
+
     return {
-        "transaction_id": 123,
+        "transaction_id": new_transaction.id,
         "user_id": user.id,
         "amount": transaction.amount,
         "new_balance": new_balance,
@@ -41,8 +44,8 @@ async def add_money(user_id: int, transaction: schemas.TransactionCreate, db: As
 
 
 @router.post('/{user_id}/withdraw')
-async def withdraw_money(user_id: int, transaction: schemas.TransactionCreate, db: AsyncSession = Depends(get_db)):
-    user = await crud.get_user(db=db, user_id=user_id)
+async def withdraw_money(transaction: schemas.TransactionCreate, db: AsyncSession = Depends(get_db)):
+    user = await crud.get_user(db=db, user_id=transaction.user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -50,11 +53,13 @@ async def withdraw_money(user_id: int, transaction: schemas.TransactionCreate, d
         raise HTTPException(status_code=400, detail="Insufficient balance")
 
     user.balance -= transaction.amount
+    transaction_type = "DEBIT"
+    new_transaction=await crud.create_transaction(db=db, transaction=transaction, transaction_type=transaction_type)
     await db.commit()
     await db.refresh(user)
 
     return {
-        "transaction_id": 123,
+        "transaction_id": new_transaction.id,
         "user_id": user.id,
         "amount": transaction.amount,
         "new_balance": user.balance,
