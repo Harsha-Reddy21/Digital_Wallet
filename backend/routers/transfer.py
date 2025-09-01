@@ -17,19 +17,41 @@ async def transfer_money(transfer: schemas.TransferCreate, db: AsyncSession = De
     if sender.balance < transfer.amount:
         raise HTTPException(status_code=400, detail="Insufficient balance")
 
+    # Update balances
     sender.balance -= transfer.amount
-    await db.commit()
-    await db.refresh(sender)
-
     recipient.balance += transfer.amount
     await db.commit()
+    await db.refresh(sender)
     await db.refresh(recipient)
 
-    sender_transaction = await crud.create_transaction(db=db, transaction=transfer, transaction_type="DEBIT")
-    recipient_transaction = await crud.create_transaction(db=db, transaction=transfer, transaction_type="CREDIT")
+    # Create sender transaction (TRANSFER_OUT)
+    sender_transaction_data = schemas.TransferTransactionCreate(
+        user_id=transfer.sender_user_id,
+        amount=transfer.amount,
+        description=transfer.description,
+        transaction_type="TRANSFER_OUT",
+        recipient_user_id=transfer.recipient_user_id
+    )
+    sender_transaction = await crud.create_transfer_transaction(db=db, transaction=sender_transaction_data)
+
+    # Create recipient transaction (TRANSFER_IN) with reference to sender transaction
+    recipient_transaction_data = schemas.TransferTransactionCreate(
+        user_id=transfer.recipient_user_id,
+        amount=transfer.amount,
+        description=transfer.description,
+        transaction_type="TRANSFER_IN",
+        recipient_user_id=transfer.recipient_user_id,
+        reference_transaction_id=sender_transaction.id
+    )
+    recipient_transaction = await crud.create_transfer_transaction(db=db, transaction=recipient_transaction_data)
+
+    # Update sender transaction with reference to recipient transaction
+    sender_transaction.reference_transaction_id = recipient_transaction.id
+    await db.commit()
+    await db.refresh(sender_transaction)
 
     return {
-        "transfer_id": "unique_transfer_id",
+        "transfer_id": f"transfer_{sender_transaction.id}_{recipient_transaction.id}",
         "sender_transaction_id": sender_transaction.id,
         "recipient_transaction_id": recipient_transaction.id,
         "amount": transfer.amount,

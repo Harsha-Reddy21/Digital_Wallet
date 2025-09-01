@@ -10,11 +10,14 @@ router = APIRouter(prefix='/transactions')
 
 @router.get('/{user_id}')
 async def get_transactions(user_id: int, page: int = Query(1), limit: int = Query(10), db: AsyncSession = Depends(get_db)):
+    # Check if user exists
+    user = await crud.get_user(db=db, user_id=user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
     transactions = await crud.get_transactions(db=db, user_id=user_id, page=page, limit=limit)
-    if not transactions:
-        raise HTTPException(status_code=404, detail="No transactions found")
-
     total = await crud.count_user_transactions(db=db, user_id=user_id)
+    
     return {
         "transactions": transactions,
         "total": total,
@@ -44,6 +47,11 @@ async def get_transaction_detail(transaction_id: int, db: AsyncSession = Depends
 
 
 @router.post('/')
-async def create_transaction(transaction: TransactionCreate, db: AsyncSession = Depends(get_db)):
-    db_transaction = await crud.create_transaction(db=db, transaction=transaction)
+async def create_transaction(transaction: TransactionCreate, transaction_type: str = "MANUAL", db: AsyncSession = Depends(get_db)):
+    # Check if user exists
+    user = await crud.get_user(db=db, user_id=transaction.user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    db_transaction = await crud.create_transaction(db=db, transaction=transaction, transaction_type=transaction_type)
     return {"transaction_id": db_transaction.id}
