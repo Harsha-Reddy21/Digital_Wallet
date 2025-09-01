@@ -36,14 +36,11 @@ class TransactionCreate(TransactionBase):
 
 
 class TransactionResponse(TransactionBase):
-    reference_transaction_id: int
-    recipient_user_id: int
-    transaction_type: str
-    created_at: datetime
-    updated_at: datetime
     id: int
+    transaction_type: str
+    reference_transaction_id: Optional[int] = None
+    recipient_user_id: Optional[int] = None
     created_at: datetime
-    updated_at: datetime
 
 
 class TransferCreate(BaseModel):
@@ -51,4 +48,12 @@ class TransferCreate(BaseModel):
     recipient_user_id: int
     amount: float
     description: str
+
+class TransferTransactionCreate(BaseModel):
+    user_id: int
+    amount: float
+    description: str
+    transaction_type: str
+    recipient_user_id: Optional[int] = None
+    reference_transaction_id: Optional[int] = None
 

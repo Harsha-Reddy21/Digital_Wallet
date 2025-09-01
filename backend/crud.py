@@ -40,11 +40,32 @@ async def get_transaction(db: AsyncSession, transaction_id: int):
 
 
 
-async def create_transaction(db:AsyncSession, transaction:schemas.TransactionCreate,transaction_type=None):
-    data=transaction.dict() 
-    data["transaction_type"] = transaction_type
+async def create_transaction(db:AsyncSession, transaction:schemas.TransactionCreate, transaction_type: str = None):
+    data = transaction.dict() 
+    if transaction_type:
+        data["transaction_type"] = transaction_type
     db_transaction = models.Transaction(**data)
     db.add(db_transaction)
     await db.commit()
     await db.refresh(db_transaction)
     return db_transaction
+
+async def create_transfer_transaction(db: AsyncSession, transaction: schemas.TransferTransactionCreate):
+    """Create a transaction with all transfer-specific fields"""
+    data = transaction.dict()
+    db_transaction = models.Transaction(**data)
+    db.add(db_transaction)
+    await db.commit()
+    await db.refresh(db_transaction)
+    return db_transaction
+
+async def count_user_transactions(db: AsyncSession, user_id: int):
+    """Count total transactions for a user"""
+    result = await db.execute(select(func.count(models.Transaction.id)).where(models.Transaction.user_id == user_id))
+    return result.scalar()
+
+async def get_transfer(db: AsyncSession, transfer_id: str):
+    """Get transfer details by transfer_id (placeholder implementation)"""
+    # This would need a Transfer model or a way to identify transfers
+    # For now, return None as this functionality needs to be designed
+    return None

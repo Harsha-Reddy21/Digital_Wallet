@@ -26,13 +26,17 @@ async def add_money(transaction: schemas.TransactionCreate, db: AsyncSession = D
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Update user balance
     new_balance = user.balance + transaction.amount
     user.balance = new_balance
     await db.commit()
     await db.refresh(user)
 
+    # Create transaction record
+    db_transaction = await crud.create_transaction(db=db, transaction=transaction, transaction_type="CREDIT")
+
     return {
-        "transaction_id": '123',
+        "transaction_id": db_transaction.id,
         "user_id": user.id,
         "amount": transaction.amount,
         "new_balance": new_balance,
@@ -49,13 +53,16 @@ async def withdraw_money(transaction: schemas.TransactionCreate, db: AsyncSessio
     if user.balance < transaction.amount:
         raise HTTPException(status_code=400, detail="Insufficient balance")
 
+    # Update user balance
     user.balance -= transaction.amount
-
     await db.commit()
     await db.refresh(user)
 
+    # Create transaction record
+    db_transaction = await crud.create_transaction(db=db, transaction=transaction, transaction_type="DEBIT")
+
     return {
-        "transaction_id": '123',
+        "transaction_id": db_transaction.id,
         "user_id": user.id,
         "amount": transaction.amount,
         "new_balance": user.balance,
