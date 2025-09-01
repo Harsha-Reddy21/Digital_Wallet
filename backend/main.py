@@ -1,6 +1,6 @@
 from fastapi import FastAPI,HTTPException
 import uvicorn
-from routers import users,transactions, transactions,wallet
+from routers import users,transactions, transactions,wallet,transfer
 from database import get_db, create_tables
 
 
@@ -12,8 +12,10 @@ app=FastAPI(
 
 
 app.include_router(users.router)
-# app.include_router(transactions.router)
 app.include_router(wallet.router)
+app.include_router(transactions.router)
+app.include_router(transfer.router)
+
 
 @app.on_event("startup")
 async def on_startup():

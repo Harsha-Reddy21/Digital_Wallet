@@ -46,3 +46,9 @@ class TransactionResponse(TransactionBase):
     updated_at: datetime
 
 
+class TransferCreate(BaseModel):
+    sender_user_id: int
+    recipient_user_id: int
+    amount: float
+    description: str
+

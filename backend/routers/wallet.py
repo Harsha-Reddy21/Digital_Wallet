@@ -31,11 +31,8 @@ async def add_money(transaction: schemas.TransactionCreate, db: AsyncSession = D
     await db.commit()
     await db.refresh(user)
 
-    transaction_type = "CREDIT"
-    new_transaction=await crud.create_transaction(db=db, transaction=transaction, transaction_type=transaction_type)
-
     return {
-        "transaction_id": new_transaction.id,
+        "transaction_id": '123',
         "user_id": user.id,
         "amount": transaction.amount,
         "new_balance": new_balance,
@@ -53,13 +50,12 @@ async def withdraw_money(transaction: schemas.TransactionCreate, db: AsyncSessio
         raise HTTPException(status_code=400, detail="Insufficient balance")
 
     user.balance -= transaction.amount
-    transaction_type = "DEBIT"
-    new_transaction=await crud.create_transaction(db=db, transaction=transaction, transaction_type=transaction_type)
+
     await db.commit()
     await db.refresh(user)
 
     return {
-        "transaction_id": new_transaction.id,
+        "transaction_id": '123',
         "user_id": user.id,
         "amount": transaction.amount,
         "new_balance": user.balance,
