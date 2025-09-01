@@ -24,6 +24,6 @@ async def create_tables():
 async def get_db():
     async with AsyncSessionLocal() as session:
         try:
-            yield session   
-        except Exception as e:
-            session.rollback()
+            yield session
+        finally:
+            session.close()

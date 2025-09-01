@@ -1,24 +1,26 @@
 
-from fastapi import APIRouter
+from fastapi import APIRouter,Depends
 import crud
+import schemas 
+from database import get_db,async_sessionmaker,AsyncSession
 router=APIRouter(prefix='/users')
 
 
-# GET /users/{user_id}
-# Response: 200 OK
-# {
-#   "user_id": 1,
-#   "username": "john_doe",
-#   "email": "john@example.com",
-#   "phone_number": "+1234567890",
-#   "balance": 150.50,
-#   "created_at": "2024-01-01T00:00:00Z"
-# }
 
-@router.get('/{user_id}',response_model=crud.schemas.UserResponse)
-async def get_user(user_id:int):
-    user = await crud.get_user(user_id=user_id)
+
+@router.get('/{user_id}')
+async def get_user(user_id:int, db:AsyncSession=Depends(get_db)):
+    user = await crud.get_user(db=db, user_id=user_id)
     if user is None:
         return {"error": "User not found"}
     return user
 
+
+@router.post('/',response_model=schemas.UserResponse)
+async def create_user(db:AsyncSession=Depends(get_db), user:schemas.UserCreate=None):
+    return await crud.create_user(db=db, user=user)
+
+
+@router.put('/{user_id}')
+async def update_user(user_id:int, db:AsyncSession=Depends(get_db), user:schemas.UserUpdate=None):
+    return await crud.update_user(db=db, user_id=user_id, user=user)

@@ -10,9 +10,9 @@ class User(Base):
     email= Column(String(100),nullable=False, unique=True)
     password=Column(String(255),nullable=False)
     phone_number=Column(String(15))
-    balance=Column(DECIMAL(10,2),nullable=False,default=0.00)
-    created_at=Column(TIMESTAMP,nullable=False,default=func.now())
-    updated_at=Column(TIMESTAMP,nullable=False,default=func.now(),onupdate=func.now())
+    balance=Column(DECIMAL(10,2),default=0.00)
+    created_at=Column(TIMESTAMP,default=func.now())
+    updated_at=Column(TIMESTAMP,default=func.now(),onupdate=func.now())
 
 
 
